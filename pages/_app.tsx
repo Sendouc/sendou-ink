@@ -9,13 +9,13 @@ import type { AppProps } from "next/app";
 import { Router } from "next/router";
 import NProgress from "nprogress";
 import { useEffect, useState } from "react";
-import { QueryClient, QueryClientProvider } from "react-query";
-import { Hydrate } from "react-query/hydration";
 import { theme } from "theme";
 import { activateLocale } from "utils/i18n";
 import { locales } from "utils/lists/locales";
-import { trpc } from "utils/trpc";
+import { withTRPC } from "@trpc/next";
 import "./styles.css";
+import { httpBatchLink } from "@trpc/client/links/httpBatchLink";
+import superjson from "superjson";
 
 NProgress.configure({ showSpinner: false });
 
@@ -156,18 +156,6 @@ const setDisplayedLanguage = () => {
 
 const MyApp = ({ Component, pageProps }: AppProps) => {
   useEffect(setDisplayedLanguage, []);
-  const [queryClient] = useState(
-    () =>
-      new QueryClient({
-        defaultOptions: {
-          queries: {
-            // queries never go stale to save some work
-            // on our poor database
-            staleTime: Infinity,
-          },
-        },
-      })
-  );
 
   return (
     <>
@@ -198,13 +186,7 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
         <ChakraProvider theme={extendedTheme}>
           <I18nProvider i18n={i18n}>
             <Layout>
-              <QueryClientProvider client={queryClient}>
-                <Hydrate
-                  state={trpc.useDehydratedState(pageProps.dehydratedState)}
-                >
-                  <Component {...pageProps} />
-                </Hydrate>
-              </QueryClientProvider>
+              <Component {...pageProps} />
             </Layout>
           </I18nProvider>
         </ChakraProvider>
@@ -212,5 +194,23 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
     </>
   );
 };
-
-export default MyApp;
+export default withTRPC({
+  config() {
+    return {
+      transformer: superjson,
+      links: [
+        httpBatchLink({
+          url: "/api/trpc",
+        }),
+      ],
+      queryClientConfig: {
+        defaultOptions: {
+          queries: {
+            staleTime: Infinity,
+          },
+        },
+      },
+    };
+  },
+  ssr: false,
+})(MyApp);

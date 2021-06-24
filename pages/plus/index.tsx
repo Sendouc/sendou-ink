@@ -17,7 +17,7 @@ import VouchesList from "components/plus/VouchesList";
 import VouchModal from "components/plus/VouchModal";
 import { useUser } from "hooks/common";
 import { usePlusHomePage } from "hooks/plus";
-import { ssr } from "pages/api/trpc/[trpc]";
+import { ssg } from "pages/api/trpc/[trpc]";
 import { Fragment } from "react";
 import { getVotingRange } from "utils/plus";
 import { getFullUsername } from "utils/strings";
@@ -240,13 +240,13 @@ const PlusHomePage = () => {
 
 export const getStaticProps = async () => {
   await Promise.all([
-    ssr.prefetchQuery("plus.suggestions"),
-    ssr.prefetchQuery("plus.statuses"),
+    ssg.fetchQuery("plus.suggestions"),
+    ssg.fetchQuery("plus.statuses"),
   ]);
 
   return {
     props: {
-      dehydratedState: ssr.dehydrate(),
+      trpcState: ssg.dehydrate(),
     },
     revalidate: 60,
   };

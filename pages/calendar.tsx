@@ -7,7 +7,7 @@ import { EventModal, FormData } from "components/calendar/EventModal";
 import MyHead from "components/common/MyHead";
 import SubText from "components/common/SubText";
 import { useMyTheme, useUser } from "hooks/common";
-import { ssr } from "pages/api/trpc/[trpc]";
+import { ssg } from "pages/api/trpc/[trpc]";
 import { Fragment, useState } from "react";
 import { FiSearch } from "react-icons/fi";
 import { trpc } from "utils/trpc";
@@ -119,11 +119,11 @@ const CalendarPage = () => {
 };
 
 export const getStaticProps = async () => {
-  await ssr.prefetchQuery("calendar.events");
+  await ssg.fetchQuery("calendar.events");
 
   return {
     props: {
-      dehydratedState: ssr.dehydrate(),
+      trpcState: ssg.dehydrate(),
     },
     revalidate: 60,
   };

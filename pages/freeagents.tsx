@@ -18,7 +18,7 @@ import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 import { mutate } from "swr";
 import { sendData } from "utils/postData";
-import { ssr } from "./api/trpc/[trpc]";
+import { ssg } from "./api/trpc/[trpc]";
 
 const FreeAgentsPage = () => {
   const {
@@ -173,11 +173,11 @@ const FreeAgentsPage = () => {
 };
 
 export const getStaticProps = async () => {
-  await ssr.prefetchQuery("freeAgents.posts");
+  await ssg.fetchQuery("freeAgents.posts");
 
   return {
     props: {
-      dehydratedState: ssr.dehydrate(),
+      trpcState: ssg.dehydrate(),
     },
     revalidate: 60,
   };
