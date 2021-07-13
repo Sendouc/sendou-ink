@@ -68,7 +68,7 @@
   "devDependencies": {
     "@babel/core": "^7.14.6",
     "@lingui/cli": "^3.8.3",
-    "@lingui/macro": "^3.8.3",
+    "@lingui/macro": "^3.10.2",
     "@types/jest": "^26.0.23",
     "@types/node": "^15.12.4",
     "@types/nprogress": "^0.2.0",
